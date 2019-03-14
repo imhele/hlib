@@ -2,5 +2,6 @@
 
 int main()
 {
+  useLib();
   return 0;
 }
