@@ -4,8 +4,11 @@
 #include <stdlib.h>
 
 /**
+ ** *******************
  ** Types definition
+ ** *******************
  */
+
 /**
  * A null value represents a reference that points, generally intentionally,
  * to a nonexistent or invalid object or address.
@@ -21,37 +24,60 @@
  */
 #define symbol ((void *)2)
 /**
- * Array
+ * An array is an ordered collection of data.
+ * Arrays are used to store multiple values in a single variable.
  */
 #define array ((void *)3)
+/**
+ * A string is a sequence of characters used to represent text.
+ */
+#define string ((void *)4)
 
-struct ClosureVar
-{
-  struct Object *var;
-  struct Object *next;
-};
+/**
+ ** *******************
+ ** Constant definition
+ ** *******************
+ */
 
+#define ARRAY_SPLIT_SIZE 255
+
+/**
+ ** *******************
+ ** Data structure definition
+ ** *******************
+ */
+
+/**
+ * A closure is the combination of a function and
+ * the lexical environment within which that function was declared.
+ */
 struct Closure
 {
-  struct ClosureVar *vars;
   struct Closure *prev;
   struct Closure **next;
+  struct ArrayItem *vars;
 };
-
-struct Closure *Closure;
 
 struct Object
 {
   char *name;
   void *type;
-  void *value;
+  void **props;
   struct Object *__proto__;
   struct Object **prototype;
 };
 
+struct ArrayItem
+{
+  struct Object *curr;
+  struct Object *next;
+};
+
+struct Closure *Closure;
 struct Object *Object;
 struct Object *Symbol;
 struct Object *Array;
+struct Object *String;
 
 void createSymbol(char *name);
 
@@ -65,10 +91,9 @@ void useClosure(char mode)
   if (mode)
   {
     struct Closure *nextOne = (struct Closure *)malloc(sizeof(struct Closure));
-    nextOne->vars = (struct ClosureVar *)malloc(sizeof(struct ClosureVar));
+    nextOne->vars = (struct ArrayItem *)malloc(sizeof(struct ArrayItem));
     if (Closure->next == null)
     {
-      Closure->next = (struct Closure **)malloc(sizeof(struct Closure *));
     }
   }
   else
@@ -86,7 +111,8 @@ void useSymbol(void);
 /**
  * Get the value of object
  */
-void *useValue(struct Object *obj) {
+void *useValue(struct Object *obj)
+{
   return null;
 }
 
@@ -126,9 +152,17 @@ void useLib(void)
   // Array->prototype = Object;
 
   /**
+   * Init String
+   */
+  String = (struct Object *)malloc(sizeof(struct Object));
+  String->name = "string";
+  String->type = string;
+  // String->prototype = Object;
+
+  /**
    * TODO remove test print
    */
-  printf("%s", Symbol->prototype == NULL ? "true" : "false");
+  printf("%ld\n", sizeof(struct Object));
 }
 
 #endif /* __HLIB_SYMBOL */
