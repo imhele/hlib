@@ -40,6 +40,7 @@
  */
 
 #define ARRAY_SPLIT_TYPE char
+#define STRING_SPLIT_TYPE char
 
 /**
  ** *******************
@@ -68,8 +69,8 @@ struct Closure
 };
 
 /**
- *? @ATTENTION: Only array type use `BaseProp.list`. [type == array]
  *? @ATTENTION: Only primitive value use `BaseProp.value`. [type == null]
+ *? @ATTENTION: Only array and string type use `BaseProp.list`. [type == array]
  */
 union BaseProp {
   void *value;
@@ -134,17 +135,31 @@ struct Object *createArray(char *name)
   arr->name = name;
   arr->type = array;
   arr->__proto__ = Array;
-  int *length = HLIB_MALLOC(int);
-  struct LinkList *propsList = createLinkList(null, createPrimitive("length", length));
-  createLinkList(propsList, createPrimitive(0, HLIB_MALLOC(struct LinkList)));
+  struct LinkList *propsList = null;
+  createLinkList(propsList, createPrimitive("length", HLIB_MALLOC(int)));
+  createLinkList(propsList, createPrimitive(0, null));
   arr->props.list = propsList;
   return arr;
+}
+
+struct Object *createString(char *name)
+{
+  struct Object *str = HLIB_MALLOC(struct Object);
+  str->name = name;
+  str->type = string;
+  str->__proto__ = String;
+  struct LinkList *propsList = null;
+  createLinkList(propsList, createPrimitive("length", HLIB_MALLOC(int)));
+  createLinkList(propsList, createPrimitive(0, null));
+  str->props.list = propsList;
+  return str;
 }
 
 /**
  * Variables defined in a closure can be used anywhere in the closure after the definition of it.
  * @param mode == 0: Create a new closure
  * @param mode != 0: Destroy a closure
+ * @return: Level of the current closure.
  */
 long useClosure(char mode)
 {
@@ -162,7 +177,7 @@ long useClosure(char mode)
     do
     {
       /**
-       * TODO: Garbage collection of variables in closures.
+       * TODO: Garbage cleaning for closure variables.
        */
       // struct Closure *tmp = Closure->children->value;
       // tmp->vars->props.arr;
@@ -183,10 +198,7 @@ void useSymbol(void);
 /**
  * Get the value of object
  */
-void *useValue(struct Object *obj)
-{
-  return null;
-}
+#define useValue(varName)
 
 /**
  * Initialize the contents of the entire library.
@@ -235,7 +247,7 @@ void useLib(void)
   /**
    * TODO remove test print
    */
-  printf("%ld  %ld\n", sizeof(long), sizeof(void *));
+  printf("%d\n", '\0' == 0 ? 1 : 0);
 }
 
 #endif /* __HLIB_TYPES */
