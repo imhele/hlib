@@ -49,8 +49,8 @@
 
 struct LinkList
 {
-  struct Object *value;
-  struct LinkList *next;
+  void *value;
+  struct LinkList *prev;
 };
 
 /**
@@ -63,8 +63,8 @@ struct Closure
    * @type: array
    */
   struct Object *vars;
-  struct Closure *prev;
-  struct LinkList *next;
+  struct Closure *parent;
+  struct LinkList *children;
 };
 
 /**
@@ -112,12 +112,11 @@ struct Object *String;
  ** *******************
  */
 
-struct LinkList *createLinkList(struct LinkList *current, struct Object *value)
+struct LinkList *createLinkList(struct LinkList *current, void *value)
 {
   struct LinkList *list = HLIB_MALLOC(struct LinkList);
   list->value = value;
-  if (current != null)
-    current->next = list;
+  list->prev = current;
   return list;
 }
 
@@ -134,7 +133,6 @@ struct Object *createArray(char *name)
   struct Object *arr = HLIB_MALLOC(struct Object);
   arr->name = name;
   arr->type = array;
-  arr->prototype = null;
   arr->__proto__ = Array;
   int *length = HLIB_MALLOC(int);
   struct LinkList *propsList = createLinkList(null, createPrimitive("length", length));
@@ -148,19 +146,31 @@ struct Object *createArray(char *name)
  * @param mode == 0: Create a new closure
  * @param mode != 0: Destroy a closure
  */
-void useClosure(char mode)
+long useClosure(char mode)
 {
   if (mode)
   {
-    struct Closure *nextOne = HLIB_MALLOC(struct Closure);
-    nextOne->vars = HLIB_MALLOC(struct Object);
-    if (Closure->next == null)
-    {
-    }
+    struct Closure *newOne = HLIB_MALLOC(struct Closure);
+    newOne->parent = Closure;
+    newOne->vars = createArray((char *)(Closure->vars + 1));
+    Closure->children = createLinkList(Closure->children, newOne);
+    Closure = newOne;
   }
-  else
+  else if (Closure->parent != null)
   {
+    Closure = Closure->parent;
+    do
+    {
+      /**
+       * TODO: Garbage collection of variables in closures.
+       */
+      // struct Closure *tmp = Closure->children->value;
+      // tmp->vars->props.arr;
+      free(Closure->children->value);
+      Closure->children = Closure->children->prev;
+    } while (Closure->children != null);
   }
+  return (long)Closure->vars->name;
 }
 
 void useSymbol(void);
@@ -187,7 +197,7 @@ void useLib(void)
    * Init Closure
    */
   Closure = HLIB_MALLOC(struct Closure);
-  Closure->prev = Closure;
+  Closure->vars = createArray((char *)0);
 
   /**
    * Init Object
@@ -225,7 +235,7 @@ void useLib(void)
   /**
    * TODO remove test print
    */
-  printf("%s\n", String->name);
+  printf("%ld  %ld\n", sizeof(long), sizeof(void *));
 }
 
 #endif /* __HLIB_TYPES */
