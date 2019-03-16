@@ -1,7 +1,7 @@
 #ifndef __HLIB_TYPES
 #define __HLIB_TYPES
 #include <stdio.h>
-#include <stdlib.h>
+#include "utils.h"
 
 /**
  ** *******************
@@ -39,7 +39,7 @@
  ** *******************
  */
 
-#define ARRAY_SPLIT_SIZE 255
+#define ARRAY_SPLIT_TYPE char
 
 /**
  ** *******************
@@ -47,30 +47,57 @@
  ** *******************
  */
 
+struct LinkList
+{
+  struct Object *value;
+  struct LinkList *next;
+};
+
 /**
  * A closure is the combination of a function and
  * the lexical environment within which that function was declared.
  */
 struct Closure
 {
+  /**
+   * @type: array
+   */
+  struct Object *vars;
   struct Closure *prev;
-  struct Closure **next;
-  struct ArrayItem *vars;
+  struct LinkList *next;
+};
+
+/**
+ *? @ATTENTION: Only array type use `BaseProp.list`. [type == array]
+ *? @ATTENTION: Only primitive value use `BaseProp.value`. [type == null]
+ */
+union BaseProp {
+  void *value;
+  struct Object *arr;
+  struct LinkList *list;
 };
 
 struct Object
 {
   char *name;
   void *type;
-  void **props;
+  /**
+   * Property that both instances and classes have.
+   * @type: array
+   */
+  union BaseProp props;
+  /**
+   * Instance-specific property.
+   * @type: object
+   * @value: Class corresponding to the instance.
+   */
   struct Object *__proto__;
-  struct Object **prototype;
-};
-
-struct ArrayItem
-{
-  struct Object *curr;
-  struct Object *next;
+  /**
+   * The method from the parent class does not inherit directly,
+   * but traces its origin through the prototype chain.
+   */
+  struct LinkList *methods;
+  struct LinkList *prototype;
 };
 
 struct Closure *Closure;
@@ -79,7 +106,42 @@ struct Object *Symbol;
 struct Object *Array;
 struct Object *String;
 
-void createSymbol(char *name);
+/**
+ ** *******************
+ ** Functions for creating instances
+ ** *******************
+ */
+
+struct LinkList *createLinkList(struct LinkList *current, struct Object *value)
+{
+  struct LinkList *list = HLIB_MALLOC(struct LinkList);
+  list->value = value;
+  if (current != null)
+    current->next = list;
+  return list;
+}
+
+struct Object *createPrimitive(char *name, void *value)
+{
+  struct Object *primitive = HLIB_MALLOC(struct Object);
+  primitive->name = name;
+  primitive->props.value = value;
+  return primitive;
+}
+
+struct Object *createArray(char *name)
+{
+  struct Object *arr = HLIB_MALLOC(struct Object);
+  arr->name = name;
+  arr->type = array;
+  arr->prototype = null;
+  arr->__proto__ = Array;
+  int *length = HLIB_MALLOC(int);
+  struct LinkList *propsList = createLinkList(null, createPrimitive("length", length));
+  createLinkList(propsList, createPrimitive(0, HLIB_MALLOC(struct LinkList)));
+  arr->props.list = propsList;
+  return arr;
+}
 
 /**
  * Variables defined in a closure can be used anywhere in the closure after the definition of it.
@@ -90,8 +152,8 @@ void useClosure(char mode)
 {
   if (mode)
   {
-    struct Closure *nextOne = (struct Closure *)malloc(sizeof(struct Closure));
-    nextOne->vars = (struct ArrayItem *)malloc(sizeof(struct ArrayItem));
+    struct Closure *nextOne = HLIB_MALLOC(struct Closure);
+    nextOne->vars = HLIB_MALLOC(struct Object);
     if (Closure->next == null)
     {
     }
@@ -99,7 +161,7 @@ void useClosure(char mode)
   else
   {
   }
-};
+}
 
 void useSymbol(void);
 
@@ -124,45 +186,46 @@ void useLib(void)
   /**
    * Init Closure
    */
-  Closure = (struct Closure *)malloc(sizeof(struct Closure));
+  Closure = HLIB_MALLOC(struct Closure);
   Closure->prev = Closure;
 
   /**
    * Init Object
    */
-  Object = (struct Object *)malloc(sizeof(struct Object));
-  Object->name = "object";
+  Object = HLIB_MALLOC(struct Object);
+  Object->name = "Object";
   Object->type = object;
-  // Object->prototype = Object;
+  Object->prototype = null;
 
   /**
    * Init Symbol
    */
-  Symbol = (struct Object *)malloc(sizeof(struct Object));
-  Symbol->name = "symbol";
+  Symbol = HLIB_MALLOC(struct Object);
+  Symbol->name = "Symbol";
   Symbol->type = symbol;
-  // Symbol->prototype = Object;
+  Symbol->prototype = HLIB_MALLOC(struct LinkList);
+  Symbol->prototype->value = Object;
 
   /**
    * Init Array
    */
-  Array = (struct Object *)malloc(sizeof(struct Object));
-  Array->name = "array";
+  Array = HLIB_MALLOC(struct Object);
+  Array->name = "Array";
   Array->type = array;
   // Array->prototype = Object;
 
   /**
    * Init String
    */
-  String = (struct Object *)malloc(sizeof(struct Object));
-  String->name = "string";
+  String = HLIB_MALLOC(struct Object);
+  String->name = "String";
   String->type = string;
   // String->prototype = Object;
 
   /**
    * TODO remove test print
    */
-  printf("%ld\n", sizeof(struct Object));
+  printf("%s\n", String->name);
 }
 
-#endif /* __HLIB_SYMBOL */
+#endif /* __HLIB_TYPES */
