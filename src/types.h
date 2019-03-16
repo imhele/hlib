@@ -1,6 +1,7 @@
 #ifndef __HLIB_TYPES
 #define __HLIB_TYPES
 #include <stdio.h>
+#include "methods.h"
 #include "utils.h"
 
 /**
@@ -39,8 +40,8 @@
  ** *******************
  */
 
-#define ARRAY_SPLIT_TYPE char
-#define STRING_SPLIT_TYPE char
+#define ARRAY_SPLIT_TYPE unsigned char
+#define STRING_SPLIT_TYPE unsigned char
 
 /**
  ** *******************
