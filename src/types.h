@@ -155,6 +155,16 @@ struct Object *createString(char *name)
   return str;
 }
 
+struct Object *createObject(char *name)
+{
+  struct Object *obj = HLIB_MALLOC(struct Object);
+  obj->name = name;
+  obj->type = object;
+  obj->__proto__ = Object;
+  obj->props.arr = createArray("props");
+  return obj;
+}
+
 /**
  * Variables defined in a closure can be used anywhere in the closure after the definition of it.
  * @param mode == 0: Create a new closure
