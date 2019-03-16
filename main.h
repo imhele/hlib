@@ -1,5 +1,5 @@
 #ifndef __HLIB
 #define __HLIB
-#include "src/types/object.h"
+#include "src/types.h"
 
 #endif
