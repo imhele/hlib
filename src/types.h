@@ -116,7 +116,7 @@ struct Object *String;
 
 struct LinkList *createLinkList(struct LinkList *current, void *value)
 {
-  struct LinkList *list = HLIB_MALLOC(struct LinkList);
+  struct LinkList *list = HLIB_CALLOC(struct LinkList);
   list->value = value;
   list->prev = current;
   return list;
@@ -124,7 +124,7 @@ struct LinkList *createLinkList(struct LinkList *current, void *value)
 
 struct Object *createPrimitive(char *name, void *value)
 {
-  struct Object *primitive = HLIB_MALLOC(struct Object);
+  struct Object *primitive = HLIB_CALLOC(struct Object);
   primitive->name = name;
   primitive->props.value = value;
   return primitive;
@@ -132,33 +132,43 @@ struct Object *createPrimitive(char *name, void *value)
 
 struct Object *createArray(char *name)
 {
-  struct Object *arr = HLIB_MALLOC(struct Object);
+  struct Object *arr = HLIB_CALLOC(struct Object);
   arr->name = name;
   arr->type = array;
   arr->__proto__ = Array;
-  struct LinkList *propsList = null;
-  createLinkList(propsList, createPrimitive("length", HLIB_MALLOC(int)));
-  createLinkList(propsList, createPrimitive(0, null));
+  struct LinkList *propsList;
+  propsList = createLinkList(null, createPrimitive("length", HLIB_CALLOC(int)));
+  propsList = createLinkList(propsList, createPrimitive(0, null));
   arr->props.list = propsList;
   return arr;
 }
 
 struct Object *createString(char *name)
 {
-  struct Object *str = HLIB_MALLOC(struct Object);
+  struct Object *str = HLIB_CALLOC(struct Object);
   str->name = name;
   str->type = string;
   str->__proto__ = String;
-  struct LinkList *propsList = null;
-  createLinkList(propsList, createPrimitive("length", HLIB_MALLOC(int)));
-  createLinkList(propsList, createPrimitive(0, null));
+  struct LinkList *propsList;
+  propsList = createLinkList(null, createPrimitive("length", HLIB_CALLOC(int)));
+  propsList = createLinkList(propsList, createPrimitive(0, null));
   str->props.list = propsList;
   return str;
 }
 
 struct Object *createObject(char *name)
 {
-  struct Object *obj = HLIB_MALLOC(struct Object);
+  struct Object *obj = HLIB_CALLOC(struct Object);
+  obj->name = name;
+  obj->type = object;
+  obj->__proto__ = Object;
+  obj->props.arr = createArray("props");
+  return obj;
+}
+
+struct Object *createSymbol(char *name)
+{
+  struct Object *obj = HLIB_CALLOC(struct Object);
   obj->name = name;
   obj->type = object;
   obj->__proto__ = Object;
@@ -176,7 +186,7 @@ long useClosure(char mode)
 {
   if (mode)
   {
-    struct Closure *newOne = HLIB_MALLOC(struct Closure);
+    struct Closure *newOne = HLIB_CALLOC(struct Closure);
     newOne->parent = Closure;
     newOne->vars = createArray((char *)(Closure->vars + 1));
     Closure->children = createLinkList(Closure->children, newOne);
@@ -219,48 +229,41 @@ void useLib(void)
   /**
    * Init Closure
    */
-  Closure = HLIB_MALLOC(struct Closure);
+  Closure = HLIB_CALLOC(struct Closure);
   Closure->vars = createArray((char *)0);
-  Closure->parent = null;
-  Closure->children = null;
 
   /**
    * Init Object
    */
-  Object = HLIB_MALLOC(struct Object);
+  Object = HLIB_CALLOC(struct Object);
   /**
    * TODO replace string with Symbol value
    */
   Object->name = "Object";
   Object->type = object;
-  Object->__proto__ = null;
-  Object->prototype = null;
 
   /**
    * Init Symbol
    */
-  Symbol = HLIB_MALLOC(struct Object);
+  Symbol = HLIB_CALLOC(struct Object);
   Symbol->name = "Symbol";
   Symbol->type = object;
-  Symbol->__proto__ = null;
   Symbol->prototype = createLinkList(null, Object);
 
   /**
    * Init Array
    */
-  Array = HLIB_MALLOC(struct Object);
+  Array = HLIB_CALLOC(struct Object);
   Array->name = "Array";
   Array->type = object;
-  Array->__proto__ = null;
   Array->prototype = createLinkList(null, Object);
 
   /**
    * Init String
    */
-  String = HLIB_MALLOC(struct Object);
+  String = HLIB_CALLOC(struct Object);
   String->name = "String";
   String->type = object;
-  String->__proto__ = null;
   String->prototype = createLinkList(null, Object);
 
   /**
