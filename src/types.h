@@ -168,12 +168,12 @@ struct Object *createObject(char *name)
 
 struct Object *createSymbol(char *name)
 {
-  struct Object *obj = HLIB_CALLOC(struct Object);
-  obj->name = name;
-  obj->type = object;
-  obj->__proto__ = Object;
-  obj->props.arr = createArray("props");
-  return obj;
+  struct Object *syb = HLIB_CALLOC(struct Object);
+  syb->name = name;
+  syb->type = symbol;
+  syb->__proto__ = Symbol;
+  syb->props.value = (void *)(long)syb;
+  return syb;
 }
 
 /**
