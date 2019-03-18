@@ -236,9 +236,6 @@ void useLib(void)
    * Init Object
    */
   Object = HLIB_CALLOC(struct Object);
-  /**
-   * TODO replace string with Symbol value
-   */
   Object->name = "Object";
   Object->type = object;
 

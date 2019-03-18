@@ -4,7 +4,7 @@ int testCreateLinkList()
 {
   char *val = "TEST";
   struct LinkList *tmp = createLinkList(null, val);
-  return tmp->value == val;
+  return tmp->value == val && tmp->prev == null;
 }
 
 void testTypes()
