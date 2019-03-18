@@ -1,5 +1,8 @@
 #ifndef __HLIB_COLORS
 #define __HLIB_COLORS
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define ColorDefault "0"
 #define ColorBlack "30"
@@ -45,5 +48,48 @@
 #endif /* __HLIB_COLOR_ALIAS */
 
 #define coloredStr(str, bg, text) "\033[" text ";" bg "m" str "\033[0m"
+
+typedef enum ConsoleType
+{
+  ConsoleTypeError,
+  ConsoleTypeWarn,
+  ConsoleTypeInfo,
+  ConsoleTypeLog,
+  ConsoleTypePass,
+} ConsoleType;
+
+void console(ConsoleType type, ...)
+{
+  switch (type)
+  {
+  case ConsoleTypeError:
+    printf(coloredStr(" ERROR ", BGColorRed, ColorBlack) "  ");
+    break;
+  case ConsoleTypeWarn:
+    printf(coloredStr(" WARN ", BGColorBrown, ColorBlack) "   ");
+    break;
+  case ConsoleTypeInfo:
+    printf(coloredStr(" INFO ", BGColorCyan, ColorBlack) "   ");
+    break;
+  case ConsoleTypeLog:
+    printf(coloredStr("  LOG  ", BGColorWhite, ColorBlack) "  ");
+    break;
+  case ConsoleTypePass:
+    printf(coloredStr(" PASS ", BGColorGreen, ColorBlack) "   ");
+    break;
+  default:
+    break;
+  }
+  va_list sArgv;
+  va_start(sArgv, type);
+  char *extra = va_arg(sArgv, char *);
+  while (extra != NULL)
+  {
+    printf("%s", extra);
+    extra = va_arg(sArgv, char *);
+  }
+  printf("\n");
+  va_end(sArgv);
+}
 
 #endif /* __HLIB_COLORS */

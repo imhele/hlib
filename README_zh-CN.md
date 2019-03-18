@@ -21,3 +21,17 @@ $ git clone https://github.com/imhele/hlib.git --depth=1
 ```bash
 $ sh ./test.sh
 ```
+
+## 简介
+
+### 类型
+
+- **`null`**: 空值表示通常指向不存在或无效对象或地址的引用。
+- **`object`**: 对象是指包含数据和数据使用说明的数据结构。
+- **`symbol`**: 具有数据类型 `symbol` 的值可以称为 symbol value ，一旦创建即为匿名的唯一值。
+- **`array`**: 数组是数据的有序集合，用于在单个变量中存储多个值。
+- **`string`**: 字符串是用于表示文本的字符序列。
+
+## 许可
+
+MIT - [imhele](https://github.com/imhele)
