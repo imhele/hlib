@@ -221,13 +221,19 @@ void useLib(void)
    */
   Closure = HLIB_MALLOC(struct Closure);
   Closure->vars = createArray((char *)0);
+  Closure->parent = null;
+  Closure->children = null;
 
   /**
    * Init Object
    */
   Object = HLIB_MALLOC(struct Object);
+  /**
+   * TODO replace string with Symbol value
+   */
   Object->name = "Object";
   Object->type = object;
+  Object->__proto__ = null;
   Object->prototype = null;
 
   /**
@@ -235,25 +241,27 @@ void useLib(void)
    */
   Symbol = HLIB_MALLOC(struct Object);
   Symbol->name = "Symbol";
-  Symbol->type = symbol;
-  Symbol->prototype = HLIB_MALLOC(struct LinkList);
-  Symbol->prototype->value = Object;
+  Symbol->type = object;
+  Symbol->__proto__ = null;
+  Symbol->prototype = createLinkList(null, Object);
 
   /**
    * Init Array
    */
   Array = HLIB_MALLOC(struct Object);
   Array->name = "Array";
-  Array->type = array;
-  // Array->prototype = Object;
+  Array->type = object;
+  Array->__proto__ = null;
+  Array->prototype = createLinkList(null, Object);
 
   /**
    * Init String
    */
   String = HLIB_MALLOC(struct Object);
   String->name = "String";
-  String->type = string;
-  // String->prototype = Object;
+  String->type = object;
+  String->__proto__ = null;
+  String->prototype = createLinkList(null, Object);
 
   /**
    * TODO remove test print
