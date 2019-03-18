@@ -7,4 +7,7 @@ int testCreateLinkList()
   return tmp->value == val;
 }
 
-#define types() createTestPart([])
+void testTypes()
+{
+  HLIB_ASSERT_FUNC(testCreateLinkList);
+}
