@@ -1,11 +1,12 @@
 #ifndef __HLIB_TYPES
 #define __HLIB_TYPES
 #include <stdio.h>
-#include "utils.h"
+#include "./methods.h"
+#include "./utils.h"
 
 /**
  ** *******************
- ** Types definition
+ **  Types definition
  ** *******************
  */
 
@@ -19,8 +20,8 @@
  */
 #define object ((void *)1)
 /**
- * A value having the data type "symbol" can be referred to as a "symbol value."
- * A symbol value is created as an anonymous, unique value. A symbol may be used as an object property.
+ * A value having the data type "symbol" can be referred to as a "symbol value".
+ * A symbol value is created as an anonymous, unique value.
  */
 #define symbol ((void *)2)
 /**
@@ -39,8 +40,8 @@
  ** *******************
  */
 
-#define ARRAY_SPLIT_TYPE char
-#define STRING_SPLIT_TYPE char
+#define ARRAY_SPLIT_TYPE unsigned char
+#define STRING_SPLIT_TYPE unsigned char
 
 /**
  ** *******************
@@ -115,7 +116,7 @@ struct Object *String;
 
 struct LinkList *createLinkList(struct LinkList *current, void *value)
 {
-  struct LinkList *list = HLIB_MALLOC(struct LinkList);
+  struct LinkList *list = HLIB_CALLOC(struct LinkList);
   list->value = value;
   list->prev = current;
   return list;
@@ -123,7 +124,7 @@ struct LinkList *createLinkList(struct LinkList *current, void *value)
 
 struct Object *createPrimitive(char *name, void *value)
 {
-  struct Object *primitive = HLIB_MALLOC(struct Object);
+  struct Object *primitive = HLIB_CALLOC(struct Object);
   primitive->name = name;
   primitive->props.value = value;
   return primitive;
@@ -131,33 +132,33 @@ struct Object *createPrimitive(char *name, void *value)
 
 struct Object *createArray(char *name)
 {
-  struct Object *arr = HLIB_MALLOC(struct Object);
+  struct Object *arr = HLIB_CALLOC(struct Object);
   arr->name = name;
   arr->type = array;
   arr->__proto__ = Array;
-  struct LinkList *propsList = null;
-  createLinkList(propsList, createPrimitive("length", HLIB_MALLOC(int)));
-  createLinkList(propsList, createPrimitive(0, null));
+  struct LinkList *propsList;
+  propsList = createLinkList(null, createPrimitive("length", HLIB_CALLOC(int)));
+  propsList = createLinkList(propsList, createPrimitive(0, null));
   arr->props.list = propsList;
   return arr;
 }
 
 struct Object *createString(char *name)
 {
-  struct Object *str = HLIB_MALLOC(struct Object);
+  struct Object *str = HLIB_CALLOC(struct Object);
   str->name = name;
   str->type = string;
   str->__proto__ = String;
-  struct LinkList *propsList = null;
-  createLinkList(propsList, createPrimitive("length", HLIB_MALLOC(int)));
-  createLinkList(propsList, createPrimitive(0, null));
+  struct LinkList *propsList;
+  propsList = createLinkList(null, createPrimitive("length", HLIB_CALLOC(int)));
+  propsList = createLinkList(propsList, createPrimitive(0, null));
   str->props.list = propsList;
   return str;
 }
 
 struct Object *createObject(char *name)
 {
-  struct Object *obj = HLIB_MALLOC(struct Object);
+  struct Object *obj = HLIB_CALLOC(struct Object);
   obj->name = name;
   obj->type = object;
   obj->__proto__ = Object;
@@ -165,99 +166,14 @@ struct Object *createObject(char *name)
   return obj;
 }
 
-/**
- * Variables defined in a closure can be used anywhere in the closure after the definition of it.
- * @param mode == 0: Create a new closure
- * @param mode != 0: Destroy a closure
- * @return: Level of the current closure.
- */
-long useClosure(char mode)
+struct Object *createSymbol(char *name)
 {
-  if (mode)
-  {
-    struct Closure *newOne = HLIB_MALLOC(struct Closure);
-    newOne->parent = Closure;
-    newOne->vars = createArray((char *)(Closure->vars + 1));
-    Closure->children = createLinkList(Closure->children, newOne);
-    Closure = newOne;
-  }
-  else if (Closure->parent != null)
-  {
-    Closure = Closure->parent;
-    do
-    {
-      /**
-       * TODO: Garbage cleaning for closure variables.
-       */
-      // struct Closure *tmp = Closure->children->value;
-      // tmp->vars->props.arr;
-      free(Closure->children->value);
-      Closure->children = Closure->children->prev;
-    } while (Closure->children != null);
-  }
-  return (long)Closure->vars->name;
-}
-
-void useSymbol(void);
-
-/**
- * Use object in C lang!
- */
-#define useObject(varName)
-
-/**
- * Get the value of object
- */
-#define useValue(varName)
-
-/**
- * Initialize the contents of the entire library.
- */
-void useLib(void)
-{
-  /**
-   * Init Closure
-   */
-  Closure = HLIB_MALLOC(struct Closure);
-  Closure->vars = createArray((char *)0);
-
-  /**
-   * Init Object
-   */
-  Object = HLIB_MALLOC(struct Object);
-  Object->name = "Object";
-  Object->type = object;
-  Object->prototype = null;
-
-  /**
-   * Init Symbol
-   */
-  Symbol = HLIB_MALLOC(struct Object);
-  Symbol->name = "Symbol";
-  Symbol->type = symbol;
-  Symbol->prototype = HLIB_MALLOC(struct LinkList);
-  Symbol->prototype->value = Object;
-
-  /**
-   * Init Array
-   */
-  Array = HLIB_MALLOC(struct Object);
-  Array->name = "Array";
-  Array->type = array;
-  // Array->prototype = Object;
-
-  /**
-   * Init String
-   */
-  String = HLIB_MALLOC(struct Object);
-  String->name = "String";
-  String->type = string;
-  // String->prototype = Object;
-
-  /**
-   * TODO remove test print
-   */
-  printf("%d\n", '\0' == 0 ? 1 : 0);
+  struct Object *syb = HLIB_CALLOC(struct Object);
+  syb->name = name;
+  syb->type = symbol;
+  syb->__proto__ = Symbol;
+  syb->props.value = (void *)(long)syb;
+  return syb;
 }
 
 #endif /* __HLIB_TYPES */

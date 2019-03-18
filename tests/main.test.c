@@ -1,10 +1,12 @@
-#include "../main.h"
+#include "./types.test.h"
 
 int main()
 {
   useLib();
   useClosure(1);
-  useObject(test);
+
+  testTypes();
+
   useClosure(0);
   return 0;
 }
