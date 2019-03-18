@@ -1,8 +1,8 @@
 #ifndef __HLIB_TYPES
 #define __HLIB_TYPES
 #include <stdio.h>
-#include "methods.h"
-#include "utils.h"
+#include "./methods.h"
+#include "./utils.h"
 
 /**
  ** *******************
@@ -265,11 +265,6 @@ void useLib(void)
   String->name = "String";
   String->type = object;
   String->prototype = createLinkList(null, Object);
-
-  /**
-   * TODO remove test print
-   */
-  printf("%d\n", '\0' == 0 ? 1 : 0);
 }
 
 #endif /* __HLIB_TYPES */

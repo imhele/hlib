@@ -1,10 +1,10 @@
-#include "../main.h"
+#include "./types.h"
 
 int main()
 {
   useLib();
   useClosure(1);
-  useObject(test);
+  // HLIB_ASSERT_FUNC(testCreateLinkList);
   useClosure(0);
   return 0;
 }

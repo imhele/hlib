@@ -1,1 +1,1 @@
-gcc -g -Wall -o types.o ./tests/types.c && ./types.o
+gcc -g -Wall -o test.o ./tests/main.c && ./test.o
