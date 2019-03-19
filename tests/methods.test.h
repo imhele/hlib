@@ -1,6 +1,6 @@
 #ifndef METHODS_TEST
 #define METHODS_TEST
-#include "../src/methods.h"
+#include "../main.h"
 
 int testSymbolSetProps()
 {
