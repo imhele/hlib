@@ -38,7 +38,9 @@ long useClosure(char mode)
 
 void *__useProp(struct Object *obj, char *prop)
 {
-  if (!obj)
+  if (!prop)
+    console(ConsoleTypeError, "TypeError: Name of a property cannot be null", null);
+  else if (!obj)
     console(ConsoleTypeError, "TypeError: Cannot read property '", prop, "' of null", null);
   else if (obj->type == object)
   {
@@ -49,6 +51,7 @@ void *__useProp(struct Object *obj, char *prop)
   else if (obj->type == string)
   {
   }
+  /* primitive */
   else if (obj->type == null)
   {
   }
@@ -61,9 +64,21 @@ void *__useProp(struct Object *obj, char *prop)
 #define useObject(varName) (ArrayPush(Closure->vars, createObject(#varName)))
 
 /**
+ * TODO use*
  * Get the value of object
  */
 #define useValue(varName)
+
+#define useContext(varName)
+
+/**
+ * @param onCatch: A function that will be calling after catching an exception.
+ * @param onCatch == NOOP: Do nothing after catching.
+ * @param onCatch == null: End the try statement.
+ */
+#define useTry(onCatch)
+
+#define useThrow(varName)
 
 /**
  * Initialize the contents of the entire library.

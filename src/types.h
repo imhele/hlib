@@ -14,25 +14,25 @@
  * A null value represents a reference that points, generally intentionally,
  * to a nonexistent or invalid object or address.
  */
-#define null ((void *)0)
+#define null ((void *)__UniqueInt_null)
 /**
  * Object refers to a data structure containing data and instructions for working with the data.
  */
-#define object ((void *)1)
+#define object ((void *)__UniqueInt_object)
 /**
  * A value having the data type "symbol" can be referred to as a "symbol value".
  * A symbol value is created as an anonymous, unique value.
  */
-#define symbol ((void *)2)
+#define symbol ((void *)__UniqueInt_symbol)
 /**
  * An array is an ordered collection of data.
  * Arrays are used to store multiple values in a single variable.
  */
-#define array ((void *)3)
+#define array ((void *)__UniqueInt_array)
 /**
  * A string is a sequence of characters used to represent text.
  */
-#define string ((void *)4)
+#define string ((void *)__UniqueInt_string)
 
 /**
  ** *******************
@@ -138,6 +138,11 @@ struct Object *createArray(char *name)
   arr->__proto__ = Array;
   struct LinkList *propsList;
   propsList = createLinkList(null, createPrimitive("length", HLIB_CALLOC(int)));
+  /**
+   * The elements of the array will be divided into multiple linked lists,
+   * each of which is stored in a `primitive` variable.
+   * The variable name is the length of the linked list.
+   */
   propsList = createLinkList(propsList, createPrimitive(0, null));
   arr->props.list = propsList;
   return arr;

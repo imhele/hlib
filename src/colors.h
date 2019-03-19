@@ -80,14 +80,11 @@ void console(ConsoleType type, ...)
   default:
     break;
   }
+  char *extra;
   va_list sArgv;
   va_start(sArgv, type);
-  char *extra = va_arg(sArgv, char *);
-  while (extra != NULL)
-  {
+  while ((extra = va_arg(sArgv, char *)) != NULL)
     printf("%s", extra);
-    extra = va_arg(sArgv, char *);
-  }
   printf("\n");
   va_end(sArgv);
 }
