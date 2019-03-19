@@ -4,8 +4,18 @@
 #include <stdlib.h>
 #include "./colors.h"
 
+enum __UniqueInt
+{
+  __UniqueInt_null,
+  __UniqueInt_object,
+  __UniqueInt_symbol,
+  __UniqueInt_array,
+  __UniqueInt_string,
+  __UniqueInt_NOOP,
+} __UniqueInt;
 #define HLIB_MALLOC(type) ((type *)malloc(sizeof(type)))
 #define HLIB_CALLOC(type) ((type *)calloc(1, sizeof(type)))
+#define NOOP ((void *)__UniqueInt_NOOP)
 
 /**
  * Test utils
@@ -13,10 +23,10 @@
 #ifdef NDEBUG
 #define HLIB_ASSERT_FUNC(ignore) ((void)0)
 #else
-#define HLIB_ASSERT_FUNC(func)                                                      \
-  ({                                                                                \
-    printf(coloredStr(" TEST ", BCGr, CBl) "  " coloredStr(#func, BCDe, CGr) "\n"); \
-    assert(func());                                                                 \
+#define HLIB_ASSERT_FUNC(func)             \
+  ({                                       \
+    console(ConsoleTypeTest, #func, null); \
+    assert(func());                        \
   })
 #endif /* NDEBUG */
 

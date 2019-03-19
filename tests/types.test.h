@@ -1,4 +1,6 @@
-#include "../main.h"
+#ifndef TYPES_TEST
+#define TYPES_TEST
+#include "../src/types.h"
 
 int testCreateLinkList()
 {
@@ -11,3 +13,5 @@ void testTypes()
 {
   HLIB_ASSERT_FUNC(testCreateLinkList);
 }
+
+#endif /* TYPES_TEST */

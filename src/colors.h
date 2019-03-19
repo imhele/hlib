@@ -56,6 +56,7 @@ typedef enum ConsoleType
   ConsoleTypeInfo,
   ConsoleTypeLog,
   ConsoleTypePass,
+  ConsoleTypeTest,
 } ConsoleType;
 
 void console(ConsoleType type, ...)
@@ -77,17 +78,17 @@ void console(ConsoleType type, ...)
   case ConsoleTypePass:
     printf(coloredStr(" PASS ", BGColorGreen, ColorBlack) "   ");
     break;
+  case ConsoleTypeTest:
+    printf(coloredStr(" Test ", BGColorBlue, ColorBlack) "   ");
+    break;
   default:
     break;
   }
+  char *extra;
   va_list sArgv;
   va_start(sArgv, type);
-  char *extra = va_arg(sArgv, char *);
-  while (extra != NULL)
-  {
+  while ((extra = va_arg(sArgv, char *)) != NULL)
     printf("%s", extra);
-    extra = va_arg(sArgv, char *);
-  }
   printf("\n");
   va_end(sArgv);
 }
