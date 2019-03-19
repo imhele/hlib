@@ -1,1 +1,1 @@
-gcc -g -Wall -o test.o ./tests/main.test.c && ./test.o
+gcc-7 -g -Wall -o test.o ./tests/main.test.c && ./test.o

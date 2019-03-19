@@ -40,9 +40,6 @@
  ** *******************
  */
 
-#define ARRAY_SPLIT_TYPE unsigned char
-#define STRING_SPLIT_TYPE unsigned char
-
 /**
  ** *******************
  ** Data structure definition
@@ -71,11 +68,9 @@ struct Closure
 
 /**
  *? @ATTENTION: Only primitive value use `BaseProp.value`. [type == null]
- *? @ATTENTION: Only array and string type use `BaseProp.list`. [type == array]
  */
 union BaseProp {
   void *value;
-  struct Object *arr;
   struct LinkList *list;
 };
 
@@ -136,15 +131,15 @@ struct Object *createArray(char *name)
   arr->name = name;
   arr->type = array;
   arr->__proto__ = Array;
-  struct LinkList *propsList;
-  propsList = createLinkList(null, createPrimitive("length", HLIB_CALLOC(int)));
+  struct LinkList *props;
+  props = createLinkList(null, createPrimitive("length", HLIB_CALLOC(int)));
   /**
    * The elements of the array will be divided into multiple linked lists,
    * each of which is stored in a `primitive` variable.
    * The variable name is the length of the linked list.
    */
-  propsList = createLinkList(propsList, createPrimitive(0, null));
-  arr->props.list = propsList;
+  props = createLinkList(props, createPrimitive(HLIB_CALLOC(char), null));
+  arr->props.list = props;
   return arr;
 }
 
@@ -154,10 +149,10 @@ struct Object *createString(char *name)
   str->name = name;
   str->type = string;
   str->__proto__ = String;
-  struct LinkList *propsList;
-  propsList = createLinkList(null, createPrimitive("length", HLIB_CALLOC(int)));
-  propsList = createLinkList(propsList, createPrimitive(0, null));
-  str->props.list = propsList;
+  struct LinkList *props;
+  props = createLinkList(null, createPrimitive("length", HLIB_CALLOC(int)));
+  props = createLinkList(props, createPrimitive(HLIB_CALLOC(char), null));
+  str->props.list = props;
   return str;
 }
 
@@ -167,7 +162,6 @@ struct Object *createObject(char *name)
   obj->name = name;
   obj->type = object;
   obj->__proto__ = Object;
-  obj->props.arr = createArray("props");
   return obj;
 }
 

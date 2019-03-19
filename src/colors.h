@@ -56,6 +56,7 @@ typedef enum ConsoleType
   ConsoleTypeInfo,
   ConsoleTypeLog,
   ConsoleTypePass,
+  ConsoleTypeTest,
 } ConsoleType;
 
 void console(ConsoleType type, ...)
@@ -76,6 +77,9 @@ void console(ConsoleType type, ...)
     break;
   case ConsoleTypePass:
     printf(coloredStr(" PASS ", BGColorGreen, ColorBlack) "   ");
+    break;
+  case ConsoleTypeTest:
+    printf(coloredStr(" Test ", BGColorBlue, ColorBlack) "   ");
     break;
   default:
     break;

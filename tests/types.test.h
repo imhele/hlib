@@ -1,6 +1,6 @@
 #ifndef TYPES_TEST
 #define TYPES_TEST
-#include "../main.h"
+#include "../src/types.h"
 
 int testCreateLinkList()
 {

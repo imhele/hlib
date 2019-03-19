@@ -23,10 +23,10 @@ enum __UniqueInt
 #ifdef NDEBUG
 #define HLIB_ASSERT_FUNC(ignore) ((void)0)
 #else
-#define HLIB_ASSERT_FUNC(func)                                                      \
-  ({                                                                                \
-    printf(coloredStr(" TEST ", BCGr, CBl) "  " coloredStr(#func, BCDe, CGr) "\n"); \
-    assert(func());                                                                 \
+#define HLIB_ASSERT_FUNC(func)             \
+  ({                                       \
+    console(ConsoleTypeTest, #func, null); \
+    assert(func());                        \
   })
 #endif /* NDEBUG */
 
