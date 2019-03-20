@@ -7,6 +7,7 @@
 基于 ECMAScript 语法与思想的 C/C++ 依赖库。
 
 > 注意：所有文件均使用 UTF-8 编码。
+> 
 > GCC 7.0+
 
 ## 开始使用
@@ -21,6 +22,10 @@ $ git clone https://github.com/imhele/hlib.git --depth=1
 
 ```bash
 $ sh ./test.sh
+
+或者使用 `imhele` ，每次修改文件后自动进行测试
+
+$ npm run dev
 ```
 
 ## 简介

@@ -87,7 +87,7 @@ void console(ConsoleType type, ...)
   char *extra;
   va_list sArgv;
   va_start(sArgv, type);
-  while ((extra = va_arg(sArgv, char *)) != NULL)
+  while ((extra = va_arg(sArgv, char *)))
     printf("%s", extra);
   printf("\n");
   va_end(sArgv);

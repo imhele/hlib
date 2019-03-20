@@ -132,6 +132,10 @@ struct Object *createArray(char *name)
   arr->type = array;
   arr->__proto__ = Array;
   struct LinkList *props;
+  /**
+   * Length of this array
+   * @type: int
+   */
   props = createLinkList(null, createPrimitive("length", HLIB_CALLOC(int)));
   /**
    * The elements of the array will be divided into multiple linked lists,
