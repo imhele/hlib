@@ -22,6 +22,10 @@ $ git clone https://github.com/imhele/hlib.git --depth=1
 
 ```bash
 $ sh ./test.sh
+
+or with `imhele`, test automatically after each file modification
+
+$ npm run dev
 ```
 
 ## Intro

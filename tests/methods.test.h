@@ -1,5 +1,7 @@
 #ifndef METHODS_TEST
 #define METHODS_TEST
+#include <stdlib.h>
+#include "../src/utils.h"
 #include "../src/methods.h"
 
 int testLinkListGetItem()
@@ -22,14 +24,18 @@ int testLinkListReverse()
 
 int __testLinkListFilterCallback(void *item, int index)
 {
-  return ((void *)1) < item && item < ((void *)3);
+  if (item == (void *)2)
+    return 1;
+  free(item);
+  return 0;
 }
 
 int testLinkListFilter()
 {
+  int *value = HLIB_CALLOC(int);
   // [1, 2, 3] <-- Pointer
-  struct LinkList *tmp = createLinkList(null, (void *)1);
-  tmp = createLinkList(createLinkList(tmp, (void *)2), (void *)3);
+  struct LinkList *tmp = createLinkList(null, value);
+  tmp = createLinkList(createLinkList(tmp, (void *)2), value);
   // [2] <-- Pointer
   struct LinkList *res = LinkListFilter(tmp, __testLinkListFilterCallback);
   return LinkListGetItem(res, 0) == (void *)2;

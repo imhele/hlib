@@ -1,0 +1,16 @@
+{
+  "name": "hlib-dev",
+  "private": true,
+  "scripts": {
+    "dev": "imhele watch ./src/**/*.h -c \"sh ./test.sh\""
+  },
+  "author": {
+    "name": "何乐",
+    "email": "work@imhele.com",
+    "url": "https://github.com/imhele"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "imhele": "^0.3.4"
+  }
+}
