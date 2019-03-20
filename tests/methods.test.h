@@ -53,14 +53,21 @@ int testArrayGetItem()
 {
   struct Object *element = createPrimitive("element", null);
   struct Object *arr = createArray("arr");
+  // [(void *)1] <-- Pointer
   ArrayPush(arr, (void *)1, null);
   if (ArrayGetItem(arr, 0) != (void *)1)
     return 0;
-  short pushLength = 126;
+  short pushLength = 125;
+  // [(void *)1, ...125...] <-- Pointer
   while (pushLength--)
     ArrayPush(arr, element, null);
-  // [(void *)0, ...126...] <-- Pointer
-  return ArrayGetItem(arr, 126) == element && ArrayGetItem(arr, 127) == null;
+  if (ArrayGetItem(arr, 125) != element)
+    return 0;
+  if (ArrayGetItem(arr, 126) != null)
+    return 0;
+  // [(void *)1, ...125..., (void *)2] <-- Pointer
+  ArrayPush(arr, (void *)2, null);
+  return ArrayGetItem(arr, -1) == (void *)2;
 }
 
 void testMethods()

@@ -141,9 +141,9 @@ struct Object *ArrayGetItem(struct Object *this, int index)
    * of the nearest array part which contains `index`.
    */
   int offset = *(int *)PrimitiveGetProps(ArrayGetProp(this, "length"));
-  if (index >= offset)
+  if (index < 0) index += offset;
+  if (index >= offset || index < 0)
     return null;
-  // index >= 0
   struct LinkList *propsPointer = this->props.list;
   /**
    * the total length of the parts that from `0` to the tail pointer
