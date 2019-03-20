@@ -132,7 +132,16 @@ struct Object *createArray(char *name)
   arr->type = array;
   arr->__proto__ = Array;
   struct LinkList *props;
+  /**
+   * Length of this array
+   * @type: int
+   */
   props = createLinkList(null, createPrimitive("length", HLIB_CALLOC(int)));
+  /**
+   * Is reversed
+   * @type: boolean
+   */
+  props = createLinkList(null, createPrimitive("reverse", HLIB_CALLOC(char)));
   /**
    * The elements of the array will be divided into multiple linked lists,
    * each of which is stored in a `primitive` variable.
@@ -151,6 +160,7 @@ struct Object *createString(char *name)
   str->__proto__ = String;
   struct LinkList *props;
   props = createLinkList(null, createPrimitive("length", HLIB_CALLOC(int)));
+  props = createLinkList(null, createPrimitive("reverse", HLIB_CALLOC(char)));
   props = createLinkList(props, createPrimitive(HLIB_CALLOC(char), null));
   str->props.list = props;
   return str;

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "./types.h"
+#include "./utils.h"
 
 /**
  ** *******************
@@ -56,7 +57,7 @@ struct Object *ArrayGetProp(struct Object *this, char *prop)
   return null;
 }
 
-void ArrayPush(struct Object *this, ...)
+int *ArrayPush(struct Object *this, ...)
 {
   struct Object *curr = this->props.list->value;
   va_list argv;
@@ -77,6 +78,14 @@ void ArrayPush(struct Object *this, ...)
   }
   *length += *(curr->name);
   va_end(argv);
+  return length;
+}
+
+struct Object *ArrayReverse(struct Object *this)
+{
+  char *reverse = PrimitiveGetProps(ArrayGetProp(this, "reverse"));
+  *reverse = *reverse ? 0 : 1;
+  return this;
 }
 
 /**
