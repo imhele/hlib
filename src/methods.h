@@ -6,6 +6,43 @@
 #include "./types.h"
 #include "./utils.h"
 
+char *ObjectGetName(struct Object *this)
+{
+  if (this)
+    return this->name;
+  console(ConsoleTypeError, "TypeError: Cannot get name of null", null);
+  return null;
+}
+
+/**
+ ** *******************
+ **      LinkList
+ ** *******************
+ */
+
+void *LinkListGetItem(struct LinkList *this, int offset)
+{
+  if (offset < 0)
+    return null;
+  while (this->value && offset--)
+    this = this->prev;
+  return this->value;
+}
+
+struct LinkList *LinkListReverse(struct LinkList *this)
+{
+  struct LinkList *tmpA = null;
+  struct LinkList *tmpB = this;
+  while (tmpB)
+  {
+    this = tmpB;
+    tmpB = this->prev;
+    this->prev = tmpA;
+    tmpA = this;
+  }
+  return this;
+}
+
 /**
  ** *******************
  **     Primitive
@@ -14,7 +51,7 @@
 
 void PrimitiveSetProps(struct Object *this, void *value)
 {
-  if (this->props.value != null)
+  if (this->props.value)
     free(this->props.value);
   this->props.value = value;
 }
@@ -42,49 +79,88 @@ struct LinkList *ArrayGetProps(struct Object *this)
   return this->props.list;
 }
 
-struct Object *ArrayGetProp(struct Object *this, char *prop)
+struct Object *ArrayGetProp(struct Object *this, char *propName)
 {
   if (this->props.list == null)
     return null;
-  struct LinkList *tmp = this->props.list;
-  while (tmp->value != null)
+  struct LinkList *propsPointer = this->props.list;
+  while (propsPointer->value)
   {
-    if (((struct Object *)tmp->value)->name)
-      if (!strcmp(((struct Object *)tmp->value)->name, prop))
-        return tmp->value;
-    tmp = tmp->prev;
+    if (!strcmp(ObjectGetName(propsPointer->value), propName))
+      return propsPointer->value;
+    propsPointer = propsPointer->prev;
   }
   return null;
 }
 
-int *ArrayPush(struct Object *this, ...)
+int ArrayPush(struct Object *this, ...)
 {
-  struct Object *curr = this->props.list->value;
+  /**
+   * @name: `*name` is the length of current part
+   * @type: primitive
+   * @props {LinkList}: Store some of array items
+   */
+  struct Object *arrPartObj = this->props.list->value;
   va_list argv;
   va_start(argv, this);
+  /**
+   * Get item from `...`
+   * @type: object
+   */
   struct Object *element;
   int *length = PrimitiveGetProps(ArrayGetProp(this, "length"));
-  *length -= *(curr->name);
-  while ((element = va_arg(argv, struct Object *)) != null)
+  *length -= *(arrPartObj->name);
+  while ((element = va_arg(argv, struct Object *)))
   {
-    curr->props.value = createLinkList(curr->props.value, element);
-    *(curr->name) = (char)(*(curr->name) + 1);
-    if (*(curr->name) >= 127)
+    /* increase the length (`*name`) of current part */
+    *(arrPartObj->name) = (char)(*(arrPartObj->name) + 1);
+    /* push one element */
+    arrPartObj->props.value = createLinkList(arrPartObj->props.value, element);
+    /* split */
+    if (*(arrPartObj->name) >= 127)
     {
-      *length += *(curr->name);
-      curr = createPrimitive(HLIB_CALLOC(char), null);
-      this->props.list = createLinkList(this->props.list, curr);
+      /* increase length */
+      *length += *(arrPartObj->name);
+      /* create a new part */
+      arrPartObj = createPrimitive(HLIB_CALLOC(char), null);
+      /* link new part to old one in array */
+      this->props.list = createLinkList(this->props.list, arrPartObj);
     }
   }
-  *length += *(curr->name);
+  *length += *(arrPartObj->name);
   va_end(argv);
-  return length;
+  return *length;
+}
+
+struct Object *ArrayGetItem(struct Object *this, int index)
+{
+  if (!this->props.list)
+    return null;
+  /**
+   * the total length of the parts that from `0` to the tail pointer
+   * of the nearest array part which contains `index`.
+   */
+  int offset = *(int *)PrimitiveGetProps(ArrayGetProp(this, "length"));
+  if (index >= offset)
+    return null;
+  // index >= 0
+  struct LinkList *propsPointer = this->props.list;
+  /**
+   * the total length of the parts that from `0` to the tail pointer
+   * of the nearest array part which **does not** contain `index`.
+   */
+  int nextOffset = offset - *ObjectGetName(propsPointer->value);
+  while (nextOffset > index)
+  {
+    propsPointer = propsPointer->prev;
+    offset = nextOffset;
+    nextOffset -= *(int *)((struct Object *)propsPointer->value)->name;
+  }
+  return LinkListGetItem(PrimitiveGetProps(propsPointer->value), offset - index - 1);
 }
 
 struct Object *ArrayReverse(struct Object *this)
 {
-  char *reverse = PrimitiveGetProps(ArrayGetProp(this, "reverse"));
-  *reverse = *reverse ? 0 : 1;
   return this;
 }
 
@@ -96,7 +172,7 @@ struct Object *ArrayReverse(struct Object *this)
 
 void SymbolSetProps(struct Object *this, struct Object *value)
 {
-  if (this->props.value != null)
+  if (this->props.value)
     return console(ConsoleTypeError, "TypeError: Assignment to symbol variable.", null);
   this->props.value = (void *)(long)value;
 }
