@@ -40,12 +40,13 @@ int testArrayPush()
   struct Object *arr = createArray("arr");
   if (PrimitiveGetProps(ArrayGetProps(arr)->value) != null)
     return 0;
-  short pushLength = 128;
+  char pushLength = 127;
   while (pushLength--)
     ArrayPush(arr, element, element, null);
   int *length = PrimitiveGetProps(ArrayGetProp(arr, "length"));
+  // [...127..., ...127...] <-- Pointer
   struct LinkList *arrPart = PrimitiveGetProps(ArrayGetProps(arr)->value);
-  return *length == 128 * 2 && arrPart->value == element;
+  return *length == 127 * 2 && arrPart->value == element;
 }
 
 int testArrayGetItem()
@@ -55,10 +56,11 @@ int testArrayGetItem()
   ArrayPush(arr, (void *)1, null);
   if (ArrayGetItem(arr, 0) != (void *)1)
     return 0;
-  short pushLength = 12;
+  short pushLength = 126;
   while (pushLength--)
     ArrayPush(arr, element, null);
-  return ArrayGetItem(arr, 12) == element && ArrayGetItem(arr, 13) == null;
+  // [(void *)0, ...126...] <-- Pointer
+  return ArrayGetItem(arr, 126) == element && ArrayGetItem(arr, 127) == null;
 }
 
 void testMethods()

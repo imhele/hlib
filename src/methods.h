@@ -112,10 +112,6 @@ int ArrayPush(struct Object *this, ...)
   *length -= *(arrPartObj->name);
   while ((element = va_arg(argv, struct Object *)))
   {
-    /* increase the length (`*name`) of current part */
-    *(arrPartObj->name) = (char)(*(arrPartObj->name) + 1);
-    /* push one element */
-    arrPartObj->props.value = createLinkList(arrPartObj->props.value, element);
     /* split */
     if (*(arrPartObj->name) >= 127)
     {
@@ -126,6 +122,10 @@ int ArrayPush(struct Object *this, ...)
       /* link new part to old one in array */
       this->props.list = createLinkList(this->props.list, arrPartObj);
     }
+    /* increase the length (`*name`) of current part */
+    *(arrPartObj->name) = (char)(*(arrPartObj->name) + 1);
+    /* push one element */
+    arrPartObj->props.value = createLinkList(arrPartObj->props.value, element);
   }
   *length += *(arrPartObj->name);
   va_end(argv);
