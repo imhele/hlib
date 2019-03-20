@@ -33,9 +33,13 @@ int __testLinkListFilterCallback(void *item, int index)
 int testLinkListFilter()
 {
   int *value = HLIB_CALLOC(int);
-  // [1, 2, 3] <-- Pointer
+  // [value, 2] <-- Pointer
   struct LinkList *tmp = createLinkList(null, value);
-  tmp = createLinkList(createLinkList(tmp, (void *)2), value);
+  tmp = createLinkList(tmp, (void *)2);
+  if (LinkListGetItem(tmp, 1) != value)
+    return 0;
+  if (LinkListGetItem(tmp, 0) != (void *)2)
+    return 0;
   // [2] <-- Pointer
   struct LinkList *res = LinkListFilter(tmp, __testLinkListFilterCallback);
   return LinkListGetItem(res, 0) == (void *)2;
