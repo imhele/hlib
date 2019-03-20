@@ -20,6 +20,21 @@ int testLinkListReverse()
   return LinkListGetItem(tmp, 2) == (void *)3 && LinkListGetItem(tmp, 0) == (void *)1;
 }
 
+int __testLinkListFilterCallback(void *item, int index)
+{
+  return ((void *)1) < item && item < ((void *)3);
+}
+
+int testLinkListFilter()
+{
+  // [1, 2, 3] <-- Pointer
+  struct LinkList *tmp = createLinkList(null, (void *)1);
+  tmp = createLinkList(createLinkList(tmp, (void *)2), (void *)3);
+  // [2] <-- Pointer
+  struct LinkList *res = LinkListFilter(tmp, __testLinkListFilterCallback);
+  return LinkListGetItem(res, 0) == (void *)2;
+}
+
 int testSymbolSetProps()
 {
   int testVal = 0;
@@ -72,9 +87,15 @@ int testArrayGetItem()
 
 void testMethods()
 {
+  /* LinkList */
   HLIB_ASSERT_FUNC(testLinkListGetItem);
   HLIB_ASSERT_FUNC(testLinkListReverse);
+  HLIB_ASSERT_FUNC(testLinkListFilter);
+
+  /* Symbol */
   HLIB_ASSERT_FUNC(testSymbolSetProps);
+
+  /* Array */
   HLIB_ASSERT_FUNC(testArrayGetProp);
   HLIB_ASSERT_FUNC(testArrayPush);
   HLIB_ASSERT_FUNC(testArrayGetItem);

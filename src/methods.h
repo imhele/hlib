@@ -43,6 +43,20 @@ struct LinkList *LinkListReverse(struct LinkList *this)
   return this;
 }
 
+struct LinkList *LinkListFilter(struct LinkList *this, int (*filter)(void *item, int index))
+{
+  int index = 0;
+  struct LinkList *result = null;
+  while (this)
+  {
+    if (filter(this->value, index))
+      result = createLinkList(result, this->value);
+    index++;
+    this = this->prev;
+  }
+  return result;
+}
+
 /**
  ** *******************
  **     Primitive
@@ -141,7 +155,8 @@ struct Object *ArrayGetItem(struct Object *this, int index)
    * of the nearest array part which contains `index`.
    */
   int offset = *(int *)PrimitiveGetProps(ArrayGetProp(this, "length"));
-  if (index < 0) index += offset;
+  if (index < 0)
+    index += offset;
   if (index >= offset || index < 0)
     return null;
   struct LinkList *propsPointer = this->props.list;
@@ -157,6 +172,13 @@ struct Object *ArrayGetItem(struct Object *this, int index)
     nextOffset -= *(int *)((struct Object *)propsPointer->value)->name;
   }
   return LinkListGetItem(PrimitiveGetProps(propsPointer->value), offset - index - 1);
+}
+
+struct Object *ArrayFilter(struct Object *this, int (*filter)(struct Object *item, int index))
+{
+  if (!this->props.list)
+    return this;
+  return null;
 }
 
 struct Object *ArrayReverse(struct Object *this)
