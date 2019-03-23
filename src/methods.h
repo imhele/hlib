@@ -70,6 +70,9 @@ void PrimitiveSetProps(struct Object *this, void *value)
   this->props.value = value;
 }
 
+/**
+ * Get the address of actual value of primitive
+ */
 void *PrimitiveGetProps(struct Object *this)
 {
   return this->props.value;
@@ -100,8 +103,12 @@ struct Object *ArrayGetProp(struct Object *this, char *propName)
   struct LinkList *propsPointer = this->props.list;
   while (propsPointer->value)
   {
-    if (!strcmp(ObjectGetName(propsPointer->value), propName))
-      return propsPointer->value;
+    /**
+     * Primitive with `null` address of its value are treated as array parts
+     */
+    if (PrimitiveGetProps(propsPointer->value))
+      if (!strcmp(ObjectGetName(propsPointer->value), propName))
+        return propsPointer->value;
     propsPointer = propsPointer->prev;
   }
   return null;
@@ -126,6 +133,14 @@ int ArrayPush(struct Object *this, ...)
   *length -= *(arrPartObj->name);
   while ((element = va_arg(argv, struct Object *)))
   {
+    /**
+     *? need to create a new array part after added any prop,
+     *? or use the following code to avoid props being treated as array part:
+     * ```c
+     * if (PrimitiveGetProps(arrPartObj))
+     *   continue;
+     * ```
+     */
     /* split */
     if (*(arrPartObj->name) >= 127)
     {
@@ -176,6 +191,9 @@ struct Object *ArrayGetItem(struct Object *this, int index)
 
 struct Object *ArrayFilter(struct Object *this, int (*filter)(struct Object *item, int index))
 {
+  /**
+   * TODO filter
+   */
   if (!this->props.list)
     return this;
   return null;
@@ -183,6 +201,9 @@ struct Object *ArrayFilter(struct Object *this, int (*filter)(struct Object *ite
 
 struct Object *ArrayReverse(struct Object *this)
 {
+  /**
+   * TODO reverse
+   */
   return this;
 }
 
