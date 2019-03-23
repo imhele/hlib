@@ -10,7 +10,7 @@ char *ObjectGetName(struct Object *this)
 {
   if (this)
     return this->name;
-  console(ConsoleTypeError, "TypeError: Cannot get name of null", null);
+  console(ConsoleError, "TypeError: Cannot get name of null", null);
   return null;
 }
 
@@ -43,13 +43,13 @@ struct LinkList *LinkListReverse(struct LinkList *this)
   return this;
 }
 
-struct LinkList *LinkListFilter(struct LinkList *this, int (*filter)(void *item, int offset))
+struct LinkList *LinkListFilter(struct LinkList *this, int (*filter)(void *item, int offset, struct LinkList *this))
 {
   int offset = 0;
   struct LinkList *result = null;
   while (this)
   {
-    if (filter(this->value, offset))
+    if (filter(this->value, offset, this))
       result = createLinkList(result, this->value);
     offset++;
     this = this->prev;
@@ -110,6 +110,19 @@ struct LinkList *LinkListSplice(struct LinkList *this, int offset, int howmany, 
   va_end(argv);
   tmp->prev = start;
   return deleted;
+}
+
+struct LinkList *LinkListFind(struct LinkList *this, int (*find)(void *item, int offset, struct LinkList *this))
+{
+  int offset = 0;
+  while (this)
+  {
+    if (find(this->value, offset, this))
+      return this->value;
+    offset++;
+    this = this->prev;
+  }
+  return null;
 }
 
 /**
@@ -275,7 +288,7 @@ struct Object *ArrayReverse(struct Object *this)
 void SymbolSetProps(struct Object *this, struct Object *value)
 {
   if (this->props.value)
-    return console(ConsoleTypeError, "TypeError: Assignment to symbol variable.", null);
+    return console(ConsoleError, "TypeError: Assignment to symbol variable.", null);
   this->props.value = (void *)(long)value;
 }
 

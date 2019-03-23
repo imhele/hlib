@@ -11,7 +11,9 @@ int testCreateLinkList()
 
 void testTypes()
 {
+  console(ConsoleStart, "Create", null);
   HLIB_ASSERT_FUNC(testCreateLinkList);
+  printf("\n");
 }
 
 #endif /* TYPES_TEST */

@@ -51,35 +51,39 @@
 
 typedef enum ConsoleType
 {
-  ConsoleTypeError,
-  ConsoleTypeWarn,
-  ConsoleTypeInfo,
-  ConsoleTypeLog,
-  ConsoleTypePass,
-  ConsoleTypeTest,
+  ConsoleError,
+  ConsoleWarn,
+  ConsoleInfo,
+  ConsoleLog,
+  ConsolePass,
+  ConsoleTest,
+  ConsoleStart,
 } ConsoleType;
 
 void console(ConsoleType type, ...)
 {
   switch (type)
   {
-  case ConsoleTypeError:
+  case ConsoleError:
     printf(coloredStr(" ERROR ", BGColorRed, ColorBlack) "  ");
     break;
-  case ConsoleTypeWarn:
+  case ConsoleWarn:
     printf(coloredStr(" WARN ", BGColorBrown, ColorBlack) "   ");
     break;
-  case ConsoleTypeInfo:
+  case ConsoleInfo:
     printf(coloredStr(" INFO ", BGColorCyan, ColorBlack) "   ");
     break;
-  case ConsoleTypeLog:
+  case ConsoleLog:
     printf(coloredStr("  LOG  ", BGColorWhite, ColorBlack) "  ");
     break;
-  case ConsoleTypePass:
+  case ConsolePass:
     printf(coloredStr(" PASS ", BGColorGreen, ColorBlack) "   ");
     break;
-  case ConsoleTypeTest:
+  case ConsoleTest:
     printf(coloredStr(" Test ", BGColorBlue, ColorBlack) "   ");
+    break;
+  case ConsoleStart:
+    printf(coloredStr(" START ", BGColorGreen, ColorBlack) "  ");
     break;
   default:
     break;

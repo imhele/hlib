@@ -41,7 +41,7 @@ int testLinkListReverse()
   return LinkListGetItem(tmp, 2) == (void *)3 && LinkListGetItem(tmp, 0) == (void *)1;
 }
 
-int __testLinkListFilterCallback(void *item, int offset)
+int __testLinkListFilterCallback(void *item, int offset, struct LinkList *this)
 {
   if (item == (void *)2)
     return 1;
@@ -91,6 +91,23 @@ int testLinkListSplice()
   // [2, 3, 4] <-- Pointer
   LinkListSplice(tmp, 0, 0, (void *)4, null);
   return LinkListGetItem(tmp, 0) == (void *)4;
+}
+
+int __testLinkListFindCallback(void *item, int offset, struct LinkList *this)
+{
+  if (item == (void *)2)
+    return 1;
+  return 0;
+}
+
+int testLinkListFind()
+{
+  int *value = HLIB_CALLOC(int);
+  // [value, 2] <-- Pointer
+  struct LinkList *tmp = createLinkList(null, value);
+  tmp = createLinkList(tmp, (void *)2);
+  void *res = LinkListFind(tmp, __testLinkListFindCallback);
+  return res == (void *)2;
 }
 
 /**
@@ -158,18 +175,25 @@ int testSymbolSetProps()
 void testMethods()
 {
   /* LinkList */
+  console(ConsoleStart, "LinkList", null);
   HLIB_ASSERT_FUNC(testLinkListGetItem);
   HLIB_ASSERT_FUNC(testLinkListReverse);
   HLIB_ASSERT_FUNC(testLinkListFilter);
   HLIB_ASSERT_FUNC(testLinkListSplice);
+  HLIB_ASSERT_FUNC(testLinkListFind);
+  printf("\n");
 
   /* Array */
+  console(ConsoleStart, "Array", null);
   HLIB_ASSERT_FUNC(testArrayGetProp);
   HLIB_ASSERT_FUNC(testArrayPush);
   HLIB_ASSERT_FUNC(testArrayGetItem);
+  printf("\n");
 
   /* Symbol */
+  console(ConsoleStart, "Symbol", null);
   HLIB_ASSERT_FUNC(testSymbolSetProps);
+  printf("\n");
 }
 
 #endif /* METHODS_TEST */
