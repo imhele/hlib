@@ -4,7 +4,7 @@
 
 [English](https://github.com/imhele/hlib/blob/master/README.md) | 简体中文
 
-基于 ECMAScript 语法与思想的 C/C++ 依赖库。
+基于 ECMAScript 语法与思想的 C 依赖库。
 
 > 注意：所有文件均使用 UTF-8 编码。
 > 

@@ -24,9 +24,9 @@ void *LinkListGetItem(struct LinkList *this, int offset)
 {
   if (offset < 0)
     return null;
-  while (this->value && offset--)
+  while (this && offset--)
     this = this->prev;
-  return this->value;
+  return this ? this->value : null;
 }
 
 struct LinkList *LinkListReverse(struct LinkList *this)
@@ -43,18 +43,73 @@ struct LinkList *LinkListReverse(struct LinkList *this)
   return this;
 }
 
-struct LinkList *LinkListFilter(struct LinkList *this, int (*filter)(void *item, int index))
+struct LinkList *LinkListFilter(struct LinkList *this, int (*filter)(void *item, int offset))
 {
-  int index = 0;
+  int offset = 0;
   struct LinkList *result = null;
   while (this)
   {
-    if (filter(this->value, index))
+    if (filter(this->value, offset))
       result = createLinkList(result, this->value);
-    index++;
+    offset++;
     this = this->prev;
   }
   return result;
+}
+
+struct LinkList *LinkListSplice(struct LinkList *this, int offset, int howmany, ...)
+{
+  /* init vars */
+  struct Object *element;
+  struct LinkList *tmp = null;
+  struct LinkList *start = null;
+  struct LinkList *deleted = null;
+
+  /* need change head pointer */
+  if (offset <= 0 || offset - howmany < 0 || !this)
+  {
+    tmp = this;
+    if (this)
+    {
+      start = this->prev;
+      start = createLinkList(start, this->value);
+    }
+    va_list argv;
+    va_start(argv, howmany);
+    while ((element = va_arg(argv, struct Object *)))
+      start = createLinkList(start, element);
+    va_end(argv);
+    if (start)
+      *this = *start;
+    return deleted;
+  }
+
+  /* delete from `offset - howmany` */
+  offset = offset - howmany - 1;
+  /* move pointer */
+  while (this->prev && offset-- >= 0)
+    this = this->prev;
+  tmp = this;
+  this = this ? this->prev : null;
+  /* start delete */
+  while (this && howmany--)
+  {
+    deleted = createLinkList(deleted, this->value);
+    start = this;
+    this = this->prev;
+    free(start);
+  }
+
+  /* insert will start from `start` */
+  start = this;
+  /* push elements */
+  va_list argv;
+  va_start(argv, howmany);
+  while ((element = va_arg(argv, struct Object *)))
+    start = createLinkList(start, element);
+  va_end(argv);
+  tmp->prev = start;
+  return deleted;
 }
 
 /**
@@ -104,9 +159,9 @@ struct Object *ArrayGetProp(struct Object *this, char *propName)
   while (propsPointer->value)
   {
     /**
-     * Primitive with `null` address of its value are treated as array parts
+     * Primitive that name of it has only one letter will be treated as array parts
      */
-    if (PrimitiveGetProps(propsPointer->value))
+    if (*(ObjectGetName(propsPointer->value) + 1))
       if (!strcmp(ObjectGetName(propsPointer->value), propName))
         return propsPointer->value;
     propsPointer = propsPointer->prev;
@@ -142,7 +197,11 @@ int ArrayPush(struct Object *this, ...)
      * ```
      */
     /* split */
-    if (*(arrPartObj->name) >= 127)
+    /**
+     * Keep a space and try to avoid any array parts
+     * that stores less than 10 elements after using `splice`
+     */
+    if (*(arrPartObj->name) >= 100)
     {
       /* increase length */
       *length += *(arrPartObj->name);
