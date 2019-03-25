@@ -23,13 +23,14 @@ struct LinkList *__createLinkListWithLength(long length)
 
 int testLinkListGetItem()
 {
-  if (LinkListGetItem(null, 0))
+  long nullChar = 0;
+  if (LinkListGetItem((struct LinkList **)&nullChar, 0))
     return 0;
   // [1, 2, 3] <-- Pointer
   struct LinkList *tmp = __createLinkListWithLength(3);
-  if (LinkListGetItem(tmp, 3))
+  if (LinkListGetItem(&tmp, 3))
     return 0;
-  return LinkListGetItem(tmp, 0) == (void *)3 && LinkListGetItem(tmp, 2) == (void *)1;
+  return LinkListGetItem(&tmp, 0) == (void *)3 && LinkListGetItem(&tmp, 2) == (void *)1;
 }
 
 int testLinkListReverse()
@@ -37,8 +38,8 @@ int testLinkListReverse()
   // [1, 2, 3] <-- Pointer
   struct LinkList *tmp = __createLinkListWithLength(3);
   // [3, 2, 1] <-- Pointer
-  tmp = LinkListReverse(tmp);
-  return LinkListGetItem(tmp, 2) == (void *)3 && LinkListGetItem(tmp, 0) == (void *)1;
+  LinkListReverse(&tmp);
+  return LinkListGetItem(&tmp, 2) == (void *)3 && LinkListGetItem(&tmp, 0) == (void *)1;
 }
 
 int __testLinkListFilterCallback(void *item, int offset, struct LinkList *this)
@@ -55,13 +56,13 @@ int testLinkListFilter()
   // [value, 2] <-- Pointer
   struct LinkList *tmp = createLinkList(null, value);
   tmp = createLinkList(tmp, (void *)2);
-  if (LinkListGetItem(tmp, 1) != value)
+  if (LinkListGetItem(&tmp, 1) != value)
     return 0;
-  if (LinkListGetItem(tmp, 0) != (void *)2)
+  if (LinkListGetItem(&tmp, 0) != (void *)2)
     return 0;
   // [2] <-- Pointer
-  struct LinkList *res = LinkListFilter(tmp, __testLinkListFilterCallback);
-  return LinkListGetItem(res, 0) == (void *)2;
+  struct LinkList *res = LinkListFilter(&tmp, __testLinkListFilterCallback);
+  return LinkListGetItem(&res, 0) == (void *)2;
 }
 
 int testLinkListSplice()
@@ -69,28 +70,32 @@ int testLinkListSplice()
   // [1, 2, 3] <-- Pointer
   struct LinkList *tmp = __createLinkListWithLength(3);
   // [2, 3] <-- Pointer
-  LinkListSplice(tmp, 2, 1, null);
-  if (LinkListGetItem(tmp, 2))
+  LinkListSplice(&tmp, 2, 1, null);
+  if (LinkListGetItem(&tmp, 2))
     return 0;
-  if (LinkListGetItem(tmp, 1) != (void *)2)
+  if (LinkListGetItem(&tmp, 1) != (void *)2)
     return 0;
-  if (LinkListGetItem(tmp, 0) != (void *)3)
+  if (LinkListGetItem(&tmp, 0) != (void *)3)
     return 0;
   // [3] <-- Pointer
-  LinkListSplice(tmp, 1, 1, null);
-  if (LinkListGetItem(tmp, 1))
+  LinkListSplice(&tmp, 1, 1, null);
+  if (LinkListGetItem(&tmp, 1))
     return 0;
-  if (LinkListGetItem(tmp, 0) != (void *)3)
+  if (LinkListGetItem(&tmp, 0) != (void *)3)
     return 0;
   // [2, 3] <-- Pointer
-  LinkListSplice(tmp, 1, 0, (void *)2, null);
-  if (LinkListGetItem(tmp, 1) != (void *)2)
+  LinkListSplice(&tmp, 1, 0, (void *)2, null);
+  if (LinkListGetItem(&tmp, 1) != (void *)2)
     return 0;
-  if (LinkListGetItem(tmp, 0) != (void *)3)
+  if (LinkListGetItem(&tmp, 0) != (void *)3)
     return 0;
   // [2, 3, 4] <-- Pointer
-  LinkListSplice(tmp, 0, 0, (void *)4, null);
-  return LinkListGetItem(tmp, 0) == (void *)4;
+  LinkListSplice(&tmp, 0, 0, (void *)4, null);
+  if (LinkListGetItem(&tmp, 0) != (void *)4)
+    return 0;
+  // [2, 3] <-- Pointer
+  LinkListSplice(&tmp, 0, 1, null);
+  return LinkListGetItem(&tmp, 0) == (void *)3;
 }
 
 int __testLinkListFindCallback(void *item, int offset, struct LinkList *this)
@@ -106,7 +111,7 @@ int testLinkListFind()
   // [value, 2] <-- Pointer
   struct LinkList *tmp = createLinkList(null, value);
   tmp = createLinkList(tmp, (void *)2);
-  void *res = LinkListFind(tmp, __testLinkListFindCallback);
+  void *res = LinkListFind(&tmp, __testLinkListFindCallback);
   return res == (void *)2;
 }
 
@@ -172,8 +177,52 @@ int testSymbolSetProps()
   return tmp->props.value != &testVal && tmp->props.value == tmp;
 }
 
+int __test3_1(char *inputStr)
+{
+  int strOffset = -1;
+  struct LinkList *Stack = null;
+  while (*(inputStr + ++strOffset))
+  {
+    printf("%c\n", *(inputStr + strOffset));
+    if (*(inputStr + strOffset) == '{' || *(inputStr + strOffset) == '[' || *(inputStr + strOffset) == '(')
+      Stack = createLinkList(Stack, inputStr + strOffset);
+    else if (*(inputStr + strOffset) == '}')
+    {
+      struct LinkList *deleted = (struct LinkList *)LinkListSplice(&Stack, 0, 1, null);
+      char *prev = (char *)LinkListGetItem(&deleted, 0);
+      printf("%p\n", prev);
+      if (!prev || *prev != '{')
+        return 0;
+    }
+    else if (*(inputStr + strOffset) == ']')
+    {
+      struct LinkList *deleted = (struct LinkList *)LinkListSplice(&Stack, 0, 1, null);
+      char *prev = (char *)LinkListGetItem(&deleted, 0);
+      if (!prev || *prev != '[')
+        return 0;
+    }
+    else if (*(inputStr + strOffset) == ')')
+    {
+      struct LinkList *deleted = (struct LinkList *)LinkListSplice(&Stack, 0, 1, null);
+      char *prev = (char *)LinkListGetItem(&deleted, 0);
+      if (!prev || *prev != '(')
+        return 0;
+    }
+  }
+  // Length of Stack should be 0
+  if (LinkListGetItem(&Stack, 0))
+    return 0;
+  return 1;
+}
+
+int test3_1()
+{
+  return __test3_1("...[...{...}...[...]...]...[...]...(...)...");
+}
+
 void testMethods()
 {
+  // HLIB_ASSERT_FUNC(test3_1);
   /* LinkList */
   console(ConsoleStart, "LinkList", null);
   HLIB_ASSERT_FUNC(testLinkListGetItem);

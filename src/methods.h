@@ -20,88 +20,98 @@ char *ObjectGetName(struct Object *this)
  ** *******************
  */
 
-void *LinkListGetItem(struct LinkList *this, int offset)
+void *LinkListGetItem(struct LinkList **this, int offset)
 {
+  struct LinkList *head = *this;
   if (offset < 0)
     return null;
-  while (this && offset--)
-    this = this->prev;
-  return this ? this->value : null;
+  while (head && offset--)
+    head = head->prev;
+  return head ? head->value : null;
 }
 
-struct LinkList *LinkListReverse(struct LinkList *this)
+struct LinkList *LinkListReverse(struct LinkList **this)
 {
   struct LinkList *tmpA = null;
-  struct LinkList *tmpB = this;
+  struct LinkList *tmpB = *this;
   while (tmpB)
   {
-    this = tmpB;
-    tmpB = this->prev;
-    this->prev = tmpA;
-    tmpA = this;
+    *this = tmpB;
+    tmpB = (*this)->prev;
+    (*this)->prev = tmpA;
+    tmpA = *this;
   }
-  return this;
+  return *this;
 }
 
-struct LinkList *LinkListFilter(struct LinkList *this, int (*filter)(void *item, int offset, struct LinkList *this))
+struct LinkList *LinkListFilter(struct LinkList **this, int (*filter)(void *item, int offset, struct LinkList *this))
 {
   int offset = 0;
+  struct LinkList *head = *this;
   struct LinkList *result = null;
-  while (this)
+  while (head)
   {
-    if (filter(this->value, offset, this))
-      result = createLinkList(result, this->value);
+    if (filter(head->value, offset, head))
+      result = createLinkList(result, head->value);
     offset++;
-    this = this->prev;
+    head = head->prev;
   }
   return result;
 }
 
-struct LinkList *LinkListSplice(struct LinkList *this, int offset, int howmany, ...)
+struct LinkList *LinkListSplice(struct LinkList **this, int offset, int howmany, ...)
 {
   /* init vars */
   struct Object *element;
   struct LinkList *tmp = null;
   struct LinkList *start = null;
   struct LinkList *deleted = null;
+  struct LinkList *head = *this;
 
-  /* need change head pointer */
-  if (offset <= 0 || offset - howmany < 0 || !this)
+  if (!head || offset < 0 || howmany < 0)
+    return deleted;
+
+  if (offset - howmany < 0 || (!offset && !howmany))
   {
-    tmp = this;
-    if (this)
+    /* push elements */
+    if (howmany)
     {
-      start = this->prev;
-      start = createLinkList(start, this->value);
+      deleted = head;
+      while (head->prev && --howmany)
+        head = head->prev;
+      tmp = head->prev;
+      head->prev = null;
+      head = tmp;
     }
     va_list argv;
     va_start(argv, howmany);
     while ((element = va_arg(argv, struct Object *)))
-      start = createLinkList(start, element);
+      head = createLinkList(head, element);
     va_end(argv);
-    if (start)
-      *this = *start;
+    *this = head;
     return deleted;
   }
-
   /* delete from `offset - howmany` */
-  offset = offset - howmany - 1;
+  offset = offset - howmany;
   /* move pointer */
-  while (this->prev && offset-- >= 0)
-    this = this->prev;
-  tmp = this;
-  this = this ? this->prev : null;
+  while (head->prev && offset--)
+    head = head->prev;
+  tmp = head;
+  head = head ? head->prev : head;
   /* start delete */
-  while (this && howmany--)
+  while (head && howmany--)
   {
-    deleted = createLinkList(deleted, this->value);
-    start = this;
-    this = this->prev;
+    /**
+     * Partial defragmentation of memory.
+     */
+    deleted = createLinkList(deleted, head->value);
+    start = head;
+    head = head->prev;
     free(start);
   }
 
   /* insert will start from `start` */
-  start = this;
+  start = head;
   /* push elements */
   va_list argv;
   va_start(argv, howmany);
@@ -112,15 +122,16 @@ struct LinkList *LinkListSplice(struct LinkList *this, int offset, int howmany, 
   return deleted;
 }
 
-struct LinkList *LinkListFind(struct LinkList *this, int (*find)(void *item, int offset, struct LinkList *this))
+struct LinkList *LinkListFind(struct LinkList **this, int (*find)(void *item, int offset, struct LinkList *this))
 {
   int offset = 0;
-  while (this)
+  struct LinkList *head = *this;
+  while (head)
   {
-    if (find(this->value, offset, this))
-      return this->value;
+    if (find(head->value, offset, head))
+      return head->value;
     offset++;
-    this = this->prev;
+    head = head->prev;
   }
   return null;
 }
@@ -258,7 +269,8 @@ struct Object *ArrayGetItem(struct Object *this, int index)
     offset = nextOffset;
     nextOffset -= *(int *)((struct Object *)propsPointer->value)->name;
   }
-  return LinkListGetItem(PrimitiveGetProps(propsPointer->value), offset - index - 1);
+  struct LinkList *prop = (struct LinkList *)PrimitiveGetProps(propsPointer->value);
+  return LinkListGetItem(&prop, offset - index - 1);
 }
 
 struct Object *ArrayFilter(struct Object *this, int (*filter)(struct Object *item, int index))
