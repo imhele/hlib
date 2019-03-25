@@ -177,52 +177,8 @@ int testSymbolSetProps()
   return tmp->props.value != &testVal && tmp->props.value == tmp;
 }
 
-int __test3_1(char *inputStr)
-{
-  int strOffset = -1;
-  struct LinkList *Stack = null;
-  while (*(inputStr + ++strOffset))
-  {
-    printf("%c\n", *(inputStr + strOffset));
-    if (*(inputStr + strOffset) == '{' || *(inputStr + strOffset) == '[' || *(inputStr + strOffset) == '(')
-      Stack = createLinkList(Stack, inputStr + strOffset);
-    else if (*(inputStr + strOffset) == '}')
-    {
-      struct LinkList *deleted = (struct LinkList *)LinkListSplice(&Stack, 0, 1, null);
-      char *prev = (char *)LinkListGetItem(&deleted, 0);
-      printf("%p\n", prev);
-      if (!prev || *prev != '{')
-        return 0;
-    }
-    else if (*(inputStr + strOffset) == ']')
-    {
-      struct LinkList *deleted = (struct LinkList *)LinkListSplice(&Stack, 0, 1, null);
-      char *prev = (char *)LinkListGetItem(&deleted, 0);
-      if (!prev || *prev != '[')
-        return 0;
-    }
-    else if (*(inputStr + strOffset) == ')')
-    {
-      struct LinkList *deleted = (struct LinkList *)LinkListSplice(&Stack, 0, 1, null);
-      char *prev = (char *)LinkListGetItem(&deleted, 0);
-      if (!prev || *prev != '(')
-        return 0;
-    }
-  }
-  // Length of Stack should be 0
-  if (LinkListGetItem(&Stack, 0))
-    return 0;
-  return 1;
-}
-
-int test3_1()
-{
-  return __test3_1("...[...{...}...[...]...]...[...]...(...)...");
-}
-
 void testMethods()
 {
-  // HLIB_ASSERT_FUNC(test3_1);
   /* LinkList */
   console(ConsoleStart, "LinkList", null);
   HLIB_ASSERT_FUNC(testLinkListGetItem);
