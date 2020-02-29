@@ -39,9 +39,9 @@ long useClosure(char mode)
 void *__useProp(struct Object *obj, char *prop)
 {
   if (!prop)
-    console(ConsoleTypeError, "TypeError: Name of a property cannot be null", null);
+    console(ConsoleError, "TypeError: Name of a property cannot be null", null);
   else if (!obj)
-    console(ConsoleTypeError, "TypeError: Cannot read property '", prop, "' of null", null);
+    console(ConsoleError, "TypeError: Cannot read property '", prop, "' of null", null);
   else if (obj->type == object)
   {
   }

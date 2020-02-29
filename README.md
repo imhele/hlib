@@ -4,7 +4,7 @@
 
 English | [简体中文](https://github.com/imhele/hlib/blob/master/README_zh-CN.md)
 
-C/C++ Library based on ECMAScript grammar and thought.
+C Library based on ECMAScript grammar and thought.
 
 > Attention: All files were written with UTF-8.
 > 

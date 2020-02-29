@@ -4,25 +4,45 @@
 #include "../src/utils.h"
 #include "../src/methods.h"
 
+/**
+ ** *******************
+ **      LinkList
+ ** *******************
+ */
+
+struct LinkList *__createLinkListWithLength(long length)
+{
+  if (length <= 0)
+    return null;
+  long index = 0;
+  struct LinkList *list = null;
+  while (length--)
+    list = createLinkList(list, (void *)++index);
+  return list;
+}
+
 int testLinkListGetItem()
 {
+  long nullChar = 0;
+  if (LinkListGetItem((struct LinkList **)&nullChar, 0))
+    return 0;
   // [1, 2, 3] <-- Pointer
-  struct LinkList *tmp = createLinkList(null, (void *)1);
-  tmp = createLinkList(createLinkList(tmp, (void *)2), (void *)3);
-  return LinkListGetItem(tmp, 0) == (void *)3 && LinkListGetItem(tmp, 2) == (void *)1;
+  struct LinkList *tmp = __createLinkListWithLength(3);
+  if (LinkListGetItem(&tmp, 3))
+    return 0;
+  return LinkListGetItem(&tmp, 0) == (void *)3 && LinkListGetItem(&tmp, 2) == (void *)1;
 }
 
 int testLinkListReverse()
 {
   // [1, 2, 3] <-- Pointer
-  struct LinkList *tmp = createLinkList(null, (void *)1);
-  tmp = createLinkList(createLinkList(tmp, (void *)2), (void *)3);
+  struct LinkList *tmp = __createLinkListWithLength(3);
   // [3, 2, 1] <-- Pointer
-  tmp = LinkListReverse(tmp);
-  return LinkListGetItem(tmp, 2) == (void *)3 && LinkListGetItem(tmp, 0) == (void *)1;
+  LinkListReverse(&tmp);
+  return LinkListGetItem(&tmp, 2) == (void *)3 && LinkListGetItem(&tmp, 0) == (void *)1;
 }
 
-int __testLinkListFilterCallback(void *item, int index)
+int __testLinkListFilterCallback(void *item, int offset, struct LinkList *this)
 {
   if (item == (void *)2)
     return 1;
@@ -36,22 +56,70 @@ int testLinkListFilter()
   // [value, 2] <-- Pointer
   struct LinkList *tmp = createLinkList(null, value);
   tmp = createLinkList(tmp, (void *)2);
-  if (LinkListGetItem(tmp, 1) != value)
+  if (LinkListGetItem(&tmp, 1) != value)
     return 0;
-  if (LinkListGetItem(tmp, 0) != (void *)2)
+  if (LinkListGetItem(&tmp, 0) != (void *)2)
     return 0;
   // [2] <-- Pointer
-  struct LinkList *res = LinkListFilter(tmp, __testLinkListFilterCallback);
-  return LinkListGetItem(res, 0) == (void *)2;
+  struct LinkList *res = LinkListFilter(&tmp, __testLinkListFilterCallback);
+  return LinkListGetItem(&res, 0) == (void *)2;
 }
 
-int testSymbolSetProps()
+int testLinkListSplice()
 {
-  int testVal = 0;
-  struct Object *tmp = createSymbol("tmp");
-  SymbolSetProps(tmp, (void *)&testVal);
-  return tmp->props.value != &testVal && tmp->props.value == tmp;
+  // [1, 2, 3] <-- Pointer
+  struct LinkList *tmp = __createLinkListWithLength(3);
+  // [2, 3] <-- Pointer
+  LinkListSplice(&tmp, 2, 1, null);
+  if (LinkListGetItem(&tmp, 2))
+    return 0;
+  if (LinkListGetItem(&tmp, 1) != (void *)2)
+    return 0;
+  if (LinkListGetItem(&tmp, 0) != (void *)3)
+    return 0;
+  // [3] <-- Pointer
+  LinkListSplice(&tmp, 1, 1, null);
+  if (LinkListGetItem(&tmp, 1))
+    return 0;
+  if (LinkListGetItem(&tmp, 0) != (void *)3)
+    return 0;
+  // [2, 3] <-- Pointer
+  LinkListSplice(&tmp, 1, 0, (void *)2, null);
+  if (LinkListGetItem(&tmp, 1) != (void *)2)
+    return 0;
+  if (LinkListGetItem(&tmp, 0) != (void *)3)
+    return 0;
+  // [2, 3, 4] <-- Pointer
+  LinkListSplice(&tmp, 0, 0, (void *)4, null);
+  if (LinkListGetItem(&tmp, 0) != (void *)4)
+    return 0;
+  // [2, 3] <-- Pointer
+  LinkListSplice(&tmp, 0, 1, null);
+  return LinkListGetItem(&tmp, 0) == (void *)3;
 }
+
+int __testLinkListFindCallback(void *item, int offset, struct LinkList *this)
+{
+  if (item == (void *)2)
+    return 1;
+  return 0;
+}
+
+int testLinkListFind()
+{
+  int *value = HLIB_CALLOC(int);
+  // [value, 2] <-- Pointer
+  struct LinkList *tmp = createLinkList(null, value);
+  tmp = createLinkList(tmp, (void *)2);
+  void *res = LinkListFind(&tmp, __testLinkListFindCallback);
+  return res == (void *)2;
+}
+
+/**
+ ** *******************
+ **       Array
+ ** *******************
+ */
 
 int testArrayGetProp()
 {
@@ -95,20 +163,42 @@ int testArrayGetItem()
   return ArrayGetItem(arr, -1) == (void *)2;
 }
 
+/**
+ ** *******************
+ **       Symbol
+ ** *******************
+ */
+
+int testSymbolSetProps()
+{
+  int testVal = 0;
+  struct Object *tmp = createSymbol("tmp");
+  SymbolSetProps(tmp, (void *)&testVal);
+  return tmp->props.value != &testVal && tmp->props.value == tmp;
+}
+
 void testMethods()
 {
   /* LinkList */
+  console(ConsoleStart, "LinkList", null);
   HLIB_ASSERT_FUNC(testLinkListGetItem);
   HLIB_ASSERT_FUNC(testLinkListReverse);
   HLIB_ASSERT_FUNC(testLinkListFilter);
-
-  /* Symbol */
-  HLIB_ASSERT_FUNC(testSymbolSetProps);
+  HLIB_ASSERT_FUNC(testLinkListSplice);
+  HLIB_ASSERT_FUNC(testLinkListFind);
+  printf("\n");
 
   /* Array */
+  console(ConsoleStart, "Array", null);
   HLIB_ASSERT_FUNC(testArrayGetProp);
   HLIB_ASSERT_FUNC(testArrayPush);
   HLIB_ASSERT_FUNC(testArrayGetItem);
+  printf("\n");
+
+  /* Symbol */
+  console(ConsoleStart, "Symbol", null);
+  HLIB_ASSERT_FUNC(testSymbolSetProps);
+  printf("\n");
 }
 
 #endif /* METHODS_TEST */
