@@ -1,9 +1,11 @@
 #ifndef __HLIB
 #define __HLIB
-#include "./src/colors.h"
-#include "./src/methods.h"
-#include "./src/types.h"
-#include "./src/use.h"
-#include "./src/utils.h"
+
+#include "src/exceptions.h"
+#include "src/helpers.h"
+#include "src/path.h"
+#include "src/pretty.h"
+#include "src/structs.h"
+#include "src/symbols.h"
 
 #endif /* __HLIB */

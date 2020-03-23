@@ -20,23 +20,38 @@ $ git clone https://github.com/imhele/hlib.git --depth=1
 
 ### Test
 
+Test files are located in the folder [`tests`](https://github.com/imhele/hlib/tree/master/tests) , executing the following command will recursively scan all `* .c` files in that folder to compile and execute:
+
 ```bash
-$ sh ./test.sh
-
-or with `imhele`, test automatically after each file modification
-
-$ npm run dev
+$ sh scripts/test.sh
 ```
 
-## Intro
+Or you can test specific directory / file:
 
-### Type
+```bash
+$ sh scripts/test.sh test/utils
+$ sh scripts/test.sh test/utils/helpers/closure.c
+```
 
-- **`null`**: A null value represents a reference that points, generally intentionally, to a nonexistent or invalid object or address.
-- **`object`**: Object refers to a data structure containing data and instructions for working with the data.
-- **`symbol`**: A value having the data type `symbol` can be referred to as a "symbol value". A symbol value is created as an anonymous, unique value.
-- **`array`**: An array is an ordered collection of data. Arrays are used to store multiple values in a single variable.
-- **`string`**: A string is a sequence of characters used to represent text.
+### Build Index
+
+By convention, all directories in `src` have a corresponding header file with a same basename, which serves as an index of files and subdirectories in the directory. Support for executing [NodeJS](https://nodejs.org/) script to build automatically:
+
+```bash
+$ node scripts/buildindex.js
+```
+
+The `excludes` ignore condition can be configured in the `.indexconfig.json` file, and each item in the array will be converted to a regular expression for matching:
+
+```json
+{
+  "root": "src",
+  "extname": ".h",
+  "entry": "main",
+  "macroprefix": "__HLIB",
+  "excludes": []
+}
+```
 
 ## License
 
