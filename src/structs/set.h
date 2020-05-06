@@ -67,6 +67,13 @@ bool SetRemove(struct Set *head, void *value, bool (*isValueEqual)(void *a, void
   return false;
 }
 
+void *SetEnd(struct Set *head)
+{
+  if ((head = head->next) != NULL)
+    return head->value;
+  return NULL;
+}
+
 #define SetFree LinkListFree
 #define SetFreeN LinkListFreeN
 #define SetFreeEach LinkListFreeEach

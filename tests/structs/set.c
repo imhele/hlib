@@ -53,6 +53,19 @@ bool testSetFree()
   return set == NULL;
 }
 
+bool testSetEnd()
+{
+  bool flag = true;
+  struct Set *set = SetCreate(NULL);
+  flag = flag && SetEnd(set) == NULL;
+  SetInsert(set, (void *)1, DEFAULTARG);
+  flag = flag && SetEnd(set) == (void *)1;
+  SetInsert(set, (void *)2, DEFAULTARG);
+  flag = flag && SetEnd(set) == (void *)2;
+  SetFree(&set);
+  return flag;
+}
+
 int main()
 {
   HLIB_ASSERT_TEST(testSetCreate);
@@ -60,5 +73,6 @@ int main()
   HLIB_ASSERT_TEST(testSetInsert);
   HLIB_ASSERT_TEST(testSetRemove);
   HLIB_ASSERT_TEST(testSetFree);
+  HLIB_ASSERT_TEST(testSetEnd);
   return 0;
 }
